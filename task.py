@@ -5,13 +5,13 @@ import db
 import settings
 import project
 
-__TABLE_NAME = 'task'
+_TABLE_NAME = 'task'
 
 def create_table():
 	conn = db.create_connection(settings.DB_NAME)
 	sql = f"""
 					-- tasks table
-					CREATE TABLE IF NOT EXISTS {__TABLE_NAME} (
+					CREATE TABLE IF NOT EXISTS {_TABLE_NAME} (
 						id integer PRIMARY KEY,
 						name text NOT NULL,
 						priority integer,
@@ -19,7 +19,7 @@ def create_table():
 						status_id integer NOT NULL,
 						begin_date text NOT NULL,
 						end_date text NOT NULL,
-						FOREIGN KEY (project_id) REFERENCES {project.__TABLE_NAME} (id)
+						FOREIGN KEY (project_id) REFERENCES {project._TABLE_NAME} (id)
 					);
 					"""
 		
@@ -32,7 +32,7 @@ def create_table():
 
 def insert_task(task:tuple):
   sql = f"""
-          INSERT INTO {__TABLE_NAME}(name, priority, status_id, project_id, begin_date, end_date)
+          INSERT INTO {_TABLE_NAME}(name, priority, status_id, project_id, begin_date, end_date)
           VALUES(?,?,?,?,?,?);
         """
   # tasks
@@ -44,7 +44,7 @@ def insert_task(task:tuple):
 
 def update_task(task:tuple):
 	sql = f"""
-				UPDATE {__TABLE_NAME} 
+				UPDATE {_TABLE_NAME} 
 				SET priority = ?,
 					begin_date = ?,
 					end_date = ?
@@ -57,13 +57,23 @@ def update_task(task:tuple):
 	
 def delete_task(task_id:tuple):
 	sql = f"""
-				DELETE FROM {__TABLE_NAME}
+				DELETE FROM {_TABLE_NAME}
 				WHERE id = ?
 				"""
 	conn = db.create_connection(settings.DB_NAME)
 	with conn:
 		cur = conn.cursor()
 		cur.execute(sql, task_id)
+
+def drop_table():
+  conn = db.create_connection(settings.DB_NAME)
+  sql = f"""
+        DROP TABLE IF EXISTS {_TABLE_NAME};
+        """
+  with conn:
+    cur = conn.cursor()
+    cur.execute(sql)
+    print(f'Table {_TABLE_NAME} dropped!')
 
 def main():
 	project_id = 1
@@ -95,14 +105,14 @@ def select_task(sql:str):
 
 def test_select_task():
 	sql = f"""
-				SELECT * FROM {__TABLE_NAME};
+				SELECT * FROM {_TABLE_NAME};
 				"""
 	rows = select_task(sql)
 	for row in rows:
 		print(row)
 	print('=======')
 	sql = f"""
-				SELECT * FROM {__TABLE_NAME}
+				SELECT * FROM {_TABLE_NAME}
 				WHERE id = 2;
 				"""
 	rows = select_task(sql)

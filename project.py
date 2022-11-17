@@ -4,7 +4,7 @@ functions related to project table
 import db
 import settings
 
-__TABLE_NAME = "project"
+_TABLE_NAME = "project"
 
 def create_table():
   conn = db.create_connection(settings.DB_NAME)
@@ -16,7 +16,7 @@ def create_table():
             begin_date text,
             end_date text
           );
-          """%(__TABLE_NAME)
+          """%(_TABLE_NAME)
 
     success = db.create_table(conn, sql)
     if success:
@@ -26,7 +26,7 @@ def create_table():
 
 def insert_table(project:tuple):
   sql = f"""
-        INSERT INTO {__TABLE_NAME}(name, begin_date, end_date) VALUES 
+        INSERT INTO {_TABLE_NAME}(name, begin_date, end_date) VALUES 
         (?, ?, ?);
         """
   conn = db.create_connection(settings.DB_NAME)
@@ -46,12 +46,12 @@ def insert_table(project:tuple):
 def drop_table():
   conn = db.create_connection(settings.DB_NAME)
   sql = f"""
-        DROP TABLE IF EXISTS {__TABLE_NAME};
+        DROP TABLE IF EXISTS {_TABLE_NAME};
         """
   with conn:
     cur = conn.cursor()
     cur.execute(sql)
-    print(f'Table {__TABLE_NAME} dropped!')
+    print(f'Table {_TABLE_NAME} dropped!')
 
 def main():
   create_table()
@@ -60,6 +60,17 @@ def main():
   print('project id: ', pid)
   #drop_table()
 
+def select_project(sql:str):
+	conn = db.create_connection(settings.DB_NAME)
+	rows = []
+	headers = []
+	with conn:
+		cur = conn.cursor()
+		cur.execute(sql)
+		rows = cur.fetchall()
+		#cur.execute(sql)
+		headers = cur.description
+	return headers, rows
 
 if __name__ == "__main__":
   main()

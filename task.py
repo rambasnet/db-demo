@@ -22,7 +22,6 @@ def create_table():
 						FOREIGN KEY (project_id) REFERENCES {project._TABLE_NAME} (id)
 					);
 					"""
-		
 	with conn:
 		success = db.create_table(conn, sql)
 		if success:

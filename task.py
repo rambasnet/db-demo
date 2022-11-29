@@ -74,6 +74,18 @@ def drop_table():
     cur.execute(sql)
     print(f'Table {_TABLE_NAME} dropped!')
 
+def select_tasks(sql:str):
+	conn = db.create_connection(settings.DB_NAME)
+	rows = []
+	headers = []
+	with conn:
+		cur = conn.cursor()
+		cur.execute(sql)
+		rows = cur.fetchall()
+		#cur.execute(sql)
+		headers = cur.description
+	return headers, rows
+
 def main():
 	project_id = 1
 	task_1 = ('Analyze the requirements of the app', 1, 1, project_id, '2015-01-01', '2015-01-02')

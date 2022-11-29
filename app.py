@@ -5,16 +5,19 @@ __author__ = "Ram Basnet"
 
 import project
 import task
+import os
 
 def menu():
 	options = """
-			Enter one of the options [1...6]:
+			Enter one of the options:
 			1: Reset Database
 			2: Create Project
 			3: Create Task
 			4: Update Project
 			5: Update Task
-			6: Exit
+			6. Display Tasks
+			7. Delete Task
+			10: Exit
 			"""
 	print(options)
 	print('>>>: ', end='')
@@ -24,7 +27,7 @@ def menu():
 def main():
 	while True:
 		op = menu()
-		if op == 6:
+		if op == 10:
 			exit()
 		elif op == 1:
 			yn = input("Are you sure? [y/n]: ").lower()
@@ -41,8 +44,53 @@ def main():
 			project.insert_table(pr)
 		elif op == 3:
 			create_new_task()
+		elif op == 5:
+			update_task()
+		elif op == 6:
+			show_tasks()
+		elif op == 7:
+			delete_task()
+
+def update_task():
+	show_tasks()
+	task_id = int(input('Enter Task ID to Update: '))
+	priority = int(input("Enter Task Priority [1-5]: "))
+	rows = task.select_task(f'select begin_date, end_date from {task._TABLE_NAME} where id= {task_id}')
+	begin_date = rows[0][0]
+	end_date = rows[0][1]
+	
+
+def delete_task():
+	show_tasks()
+	task_id = int(input('Enter Task ID to Delete: '))
+	task.delete_task((task_id, ))
+	show_tasks()
+
+def show_tasks():
+	os.system('clear')
+	sql = f'''
+				SELECT id, name, priority, project_id, status_id, begin_date, end_date 
+				FROM {task._TABLE_NAME} 
+				ORDER BY priority DESC
+			'''
+	headers, rows = task.select_tasks(sql)
+	#for h in headers:
+	print(f'{"Displaying All the Tasks":^106}', end='\n\n')
+	print(f'{headers[0][0]:^10}', end='')
+	print(f'{headers[1][0]:<30}', end='')
+	print(f'{headers[2][0]:^12}', end='')
+	print(f'{headers[3][0]:^12}', end='')
+	print(f'{headers[4][0]:^12}', end='')
+	print(f'{headers[5][0]:<15}', end='')
+	print(f'{headers[6][0]:<15}')
+	print('='*106)
+	for row in rows:
+		print('{:^10}{:<30}{:^12}{:^12}{:^12}{:<15}{:<15}'.format(*row))
+	print('-'*106)
+	input('Enter to continue...')
 
 def show_projects():
+	os.system('clear')
 	sql = f"SELECT * from {project._TABLE_NAME};"
 	headers, rows = project.select_project(sql)
 	for header in headers:
@@ -50,6 +98,7 @@ def show_projects():
 	print()
 	for row in rows:
 		print(*row)
+	
 
 def create_new_task():
 	show_projects()

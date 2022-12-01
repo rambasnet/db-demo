@@ -74,13 +74,15 @@ def drop_table():
     cur.execute(sql)
     print(f'Table {_TABLE_NAME} dropped!')
 
-def select_tasks(sql:str):
+def select_tasks(sql:str, para=None):
 	conn = db.create_connection(settings.DB_NAME)
 	rows = []
 	headers = []
+	if not para:
+		para = ()
 	with conn:
 		cur = conn.cursor()
-		cur.execute(sql)
+		cur.execute(sql, para)
 		rows = cur.fetchall()
 		#cur.execute(sql)
 		headers = cur.description

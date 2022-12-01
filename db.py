@@ -17,7 +17,7 @@ def create_connection(db_file: str):
   conn = None
   try:
     conn = sqlite3.connect(db_file)
-    print('Connection successful...')
+    #print('Connection successful...')
   except Exception as ex:
     print('Error: ', ex, db_file)
   return conn

@@ -15,8 +15,9 @@ def menu():
 			3: Create Task
 			4: Update Project
 			5: Update Task
-			6. Display Tasks
-			7. Delete Task
+			6: Show All Tasks
+			7: Delete Task
+			8: Show Project Tasks
 			10: Exit
 			"""
 	print(options)
@@ -47,26 +48,55 @@ def main():
 		elif op == 5:
 			update_task()
 		elif op == 6:
-			show_tasks()
+			show_all_tasks()
 		elif op == 7:
 			delete_task()
+		elif op == 8:
+			show_project_tasks()
+
+def show_project_tasks():
+	show_projects()
+	pr_id = int(input('Enter Project ID: '))
+	sql = f'''
+				SELECT id, name, priority, status_id, begin_date, end_date 
+				FROM {task._TABLE_NAME} 
+				WHERE project_id=?
+				ORDER BY priority DESC
+			'''
+	title = f'Showing All Tasks For Project ID {pr_id}'
+	print(f'{title:^94}')
+	header = ['ID', 'Name', 'Priority', 'Project ID', 'Status ID', 'Begin Date', 'End Date']
+	format = '{:^10}{:<30}{:^12}{:^12}{:<15}{:<15}'
+	print(format.format(*header))
+	print('='*94)
+	_, rows = task.select_tasks(sql, (pr_id, ))
+	#print(rows)
+	for row in rows:
+		print(format.format(*row))
+	print('-'*94)
+	input('Enter to continue...')
 
 def update_task():
-	show_tasks()
+	os.system('clear')
+	show_all_tasks()
 	task_id = int(input('Enter Task ID to Update: '))
 	priority = int(input("Enter Task Priority [1-5]: "))
 	rows = task.select_task(f'select begin_date, end_date from {task._TABLE_NAME} where id= {task_id}')
 	begin_date = rows[0][0]
 	end_date = rows[0][1]
-	
+	data = (priority, begin_date, end_date, task_id)
+	task.update_task(data)
+	print('Task updated successfully...')
+	input('Enter to continue...')
+	show_all_tasks()
 
 def delete_task():
-	show_tasks()
+	show_all_tasks()
 	task_id = int(input('Enter Task ID to Delete: '))
 	task.delete_task((task_id, ))
-	show_tasks()
+	show_all_tasks()
 
-def show_tasks():
+def show_all_tasks():
 	os.system('clear')
 	sql = f'''
 				SELECT id, name, priority, project_id, status_id, begin_date, end_date 
@@ -107,8 +137,8 @@ def create_new_task():
 	name = input("Enter Task name: ")
 	priority = int(input("Enter Task Priority [1-5]: "))
 	status_id = int(input("Enter a status id [1-5]: "))
-	begin_date = input("Enter begin date: ")
-	end_date = input("Enter end date: ")
+	begin_date = input("Enter begin date (yyyy-mm-dd): ")
+	end_date = input("Enter end date (e.g.: 2022-12-31): ")
 	new_task = (name, priority, status_id, proj_id, begin_date, end_date)
 	task.insert_task(new_task)
 
